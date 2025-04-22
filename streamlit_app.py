@@ -14,7 +14,7 @@ TEMPLATES = {
 def load_template(garment):
     return Image.open(TEMPLATES[garment]).convert("RGBA")
 
-# Generate image using Replicate (Stable Diffusion - updated version)
+# Generate image using Replicate SDXL
 @st.cache_data(show_spinner=True)
 def generate_image(prompt):
     try:
@@ -27,9 +27,11 @@ def generate_image(prompt):
         }
 
         data = {
-            "version": "a9758cb3c5aa467aa8cfa7c655e1df3d314c2d4cd8b2f29d6c1c3f5f1c7009f3",
+            "version": "cfe9c5f2b8434553a5f87bf8c69d71b4eaf70b5c970aa915d6b0e65c5f56907c",
             "input": {
-                "prompt": prompt
+                "prompt": prompt,
+                "scheduler": "K_EULER",
+                "num_outputs": 1
             }
         }
 
@@ -37,7 +39,7 @@ def generate_image(prompt):
         response.raise_for_status()
         prediction = response.json()
 
-        # Poll until done
+        # Poll until completed
         get_url = prediction["urls"]["get"]
         status = prediction["status"]
 
@@ -65,7 +67,7 @@ def create_mockup(template_img, design_img):
     mockup.paste(design_img, (200, 300), design_img)
     return mockup
 
-# Streamlit App UI
+# Streamlit App
 st.title("🎨 AI Design Collab Assistant")
 st.write("Drop your idea and we’ll mock it up on your favorite garment.")
 
