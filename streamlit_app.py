@@ -2,7 +2,6 @@ import streamlit as st
 from PIL import Image
 import requests
 from io import BytesIO
-import os
 
 # Garment templates
 TEMPLATES = {
@@ -15,7 +14,7 @@ TEMPLATES = {
 def load_template(garment):
     return Image.open(TEMPLATES[garment]).convert("RGBA")
 
-# Generate image using Replicate (Stable Diffusion)
+# Generate image using Replicate (Stable Diffusion - updated version)
 @st.cache_data(show_spinner=True)
 def generate_image(prompt):
     try:
@@ -28,11 +27,9 @@ def generate_image(prompt):
         }
 
         data = {
-            "version": "db21e45d3f7096f6e320d44c4761b83f1d7c907133da7f0871f0f0e06b53b80e",  # stable-diffusion 1.5
+            "version": "a9758cb3c5aa467aa8cfa7c655e1df3d314c2d4cd8b2f29d6c1c3f5f1c7009f3",
             "input": {
-                "prompt": prompt,
-                "width": 512,
-                "height": 512
+                "prompt": prompt
             }
         }
 
@@ -40,11 +37,11 @@ def generate_image(prompt):
         response.raise_for_status()
         prediction = response.json()
 
-        # Wait until the image is ready
-        status = prediction["status"]
+        # Poll until done
         get_url = prediction["urls"]["get"]
+        status = prediction["status"]
 
-        while status != "succeeded" and status != "failed":
+        while status not in ["succeeded", "failed"]:
             poll = requests.get(get_url, headers=headers)
             poll.raise_for_status()
             prediction = poll.json()
@@ -68,7 +65,7 @@ def create_mockup(template_img, design_img):
     mockup.paste(design_img, (200, 300), design_img)
     return mockup
 
-# Streamlit App
+# Streamlit App UI
 st.title("🎨 AI Design Collab Assistant")
 st.write("Drop your idea and we’ll mock it up on your favorite garment.")
 
