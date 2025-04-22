@@ -24,7 +24,8 @@ def generate_image(prompt):
 
         # Using cjwbw/stable-diffusion-v1-4 (simple version)
         data = {
-            "version": "cc6cde997db2aa9b5d6c9621dfd2c38fe2383fd80be358fb8c865dbf0b9df354",
+            "version": "f23f480345f60d0f1762d6976c1d728d6543d905cbdd27336e4d87d0267f6c60",
+
             "input": {
                 "prompt": prompt,
                 "guidance_scale": 7.5,
