@@ -24,7 +24,7 @@ def generate_image(prompt):
         }
 
         data = {
-            "version": "f23f480345f60d0f1762d6976c1d728d6543d905cbdd27336e4d87d0267f6c60",  # hosted SDXL model
+            "version": "f23f480345f60d0f1762d6976c1d728d6543d905cbdd27336e4d87d0267f6c60",  # Public SDXL model version ID
             "input": {
                 "prompt": prompt,
                 "guidance_scale": 7.5,
