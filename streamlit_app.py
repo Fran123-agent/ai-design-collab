@@ -11,9 +11,11 @@ openai.api_key = st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets 
 
 # Garment templates
 TEMPLATES = {
-    "Hoodie": " "hoodie_template.png",
+    "Hoodie": "hoodie_template.png",
     "T-Shirt": "tshirt_template.png",
     "Crewneck": "crewneck_template.png"
+}
+
 }
 
 # Load templates
