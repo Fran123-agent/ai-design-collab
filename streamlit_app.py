@@ -14,11 +14,11 @@ TEMPLATES = {
 def load_template(garment):
     return Image.open(TEMPLATES[garment]).convert("RGBA")
 
-# Generate image from prompt using CompVis model (NO license needed)
+# Generate image from prompt using Hugging Face (Dreamlike Photoreal)
 @st.cache_data(show_spinner=True)
 def generate_image(prompt):
     try:
-        API_URL = "https://api-inference.huggingface.co/models/CompVis/stable-diffusion-v1-4"
+        API_URL = "https://api-inference.huggingface.co/models/dreamlike-art/dreamlike-photoreal-2.0"
         headers = {
             "Authorization": f"Bearer {st.secrets['HF_API_TOKEN']}"
         }
