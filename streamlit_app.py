@@ -1,4 +1,3 @@
-
 import streamlit as st
 from PIL import Image
 import requests
@@ -14,8 +13,6 @@ TEMPLATES = {
     "Hoodie": "hoodie_template.png",
     "T-Shirt": "tshirt_template.png",
     "Crewneck": "crewneck_template.png"
-}
-
 }
 
 # Load templates
