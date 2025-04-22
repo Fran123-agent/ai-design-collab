@@ -15,11 +15,11 @@ TEMPLATES = {
 def load_template(garment):
     return Image.open(TEMPLATES[garment]).convert("RGBA")
 
-# Generate image from prompt using Hugging Face (Stable Diffusion)
+# Generate image from prompt using Hugging Face (Stable Diffusion v1.4)
 @st.cache_data(show_spinner=True)
 def generate_image(prompt):
     try:
-        API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2"
+        API_URL = "https://api-inference.huggingface.co/models/CompVis/stable-diffusion-v1-4"
         headers = {
             "Authorization": f"Bearer {st.secrets['HF_API_TOKEN']}"
         }
@@ -45,11 +45,10 @@ def create_mockup(template_img, design_img):
     mockup.paste(design_img, (200, 300), design_img)
     return mockup
 
-# Streamlit App
+# Streamlit App UI
 st.title("🎨 AI Design Collab Assistant")
 st.write("Drop your idea and we’ll mock it up on your favorite garment.")
 
-# User inputs
 garment = st.selectbox("Choose your base garment:", list(TEMPLATES.keys()))
 prompt = st.text_area("Describe your design idea:", placeholder="e.g. A graffiti-style phoenix with neon accents")
 
