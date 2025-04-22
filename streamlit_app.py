@@ -22,11 +22,13 @@ def generate_image(prompt):
             "Content-Type": "application/json"
         }
 
-        # RECOMMENDED MODEL: replicate/stable-diffusion (Latest Wrapper)
+        # Using cjwbw/stable-diffusion-v1-4 (simple version)
         data = {
-            "version": "db21e45d3f7096f6e320d44c4761b83f1d7c907133da7f0871f0f0e06b53b80e",
+            "version": "cc6cde997db2aa9b5d6c9621dfd2c38fe2383fd80be358fb8c865dbf0b9df354",
             "input": {
-                "prompt": prompt
+                "prompt": prompt,
+                "guidance_scale": 7.5,
+                "num_inference_steps": 25
             }
         }
 
@@ -34,7 +36,6 @@ def generate_image(prompt):
         response.raise_for_status()
         prediction = response.json()
 
-        # Poll until ready
         get_url = prediction["urls"]["get"]
         status = prediction["status"]
 
