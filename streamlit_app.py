@@ -3,6 +3,7 @@ from PIL import Image
 import requests
 from io import BytesIO
 
+# Garment templates
 TEMPLATES = {
     "Hoodie": "hoodie_template.png",
     "T-Shirt": "tshirt_template.png",
@@ -22,14 +23,12 @@ def generate_image(prompt):
             "Content-Type": "application/json"
         }
 
-        # Using cjwbw/stable-diffusion-v1-4 (simple version)
         data = {
-            "version": "f23f480345f60d0f1762d6976c1d728d6543d905cbdd27336e4d87d0267f6c60",
-
+            "version": "f23f480345f60d0f1762d6976c1d728d6543d905cbdd27336e4d87d0267f6c60",  # hosted SDXL model
             "input": {
                 "prompt": prompt,
                 "guidance_scale": 7.5,
-                "num_inference_steps": 25
+                "num_inference_steps": 30
             }
         }
 
@@ -63,6 +62,7 @@ def create_mockup(template_img, design_img):
     mockup.paste(design_img, (200, 300), design_img)
     return mockup
 
+# Streamlit UI
 st.title("🎨 AI Design Collab Assistant")
 st.write("Drop your idea and we’ll mock it up on your favorite garment.")
 
