@@ -26,7 +26,8 @@ def generate_image(prompt):
         data = {
             "version": "ed0f243e631eaf3c68b84c306e20516e819c287c438d93bb1c6f847bddbfe4ef",  # lucataco/sdxl
             "input": {
-                "prompt": prompt
+                "prompt": prompt,
+                "prompt_strength": 0.8  # REQUIRED for this model
             }
         }
 
@@ -85,4 +86,4 @@ if generate_btn and prompt.strip():
         except Exception as e:
             st.error(f"Something went wrong: {e}")
 else:
-    st.info("Enter a prompt and hit Generate to get started.")
+    st.info("Enter a prompt
