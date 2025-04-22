@@ -2,7 +2,6 @@ import streamlit as st
 from PIL import Image
 import requests
 from io import BytesIO
-import os
 
 # Garment templates
 TEMPLATES = {
@@ -15,7 +14,7 @@ TEMPLATES = {
 def load_template(garment):
     return Image.open(TEMPLATES[garment]).convert("RGBA")
 
-# Generate image from prompt using Hugging Face (Stable Diffusion v1.4)
+# Generate image from prompt using CompVis model (NO license needed)
 @st.cache_data(show_spinner=True)
 def generate_image(prompt):
     try:
@@ -45,7 +44,7 @@ def create_mockup(template_img, design_img):
     mockup.paste(design_img, (200, 300), design_img)
     return mockup
 
-# Streamlit App UI
+# Streamlit App
 st.title("🎨 AI Design Collab Assistant")
 st.write("Drop your idea and we’ll mock it up on your favorite garment.")
 
