@@ -16,17 +16,20 @@ def load_template(garment):
 @st.cache_data(show_spinner=True)
 def generate_image(prompt):
     try:
-        # Public Hugging Face Space (ByteDance SDXL Lightning)
-        api_url = "https://hf.space/embed/ByteDance/SDXL-Lightning/+/api/predict"
+        # Public Hugging Face Space API endpoint
+        api_url = "https://ap123-sdxl-lightning.hf.space/api/predict"
 
-        response = requests.post(api_url, json={
-            "data": [prompt]
-        })
+        # Prepare the payload
+        payload = {
+            "data": [prompt, "4-Step"]  # Adjust '4-Step' as needed
+        }
 
+        # Send the POST request
+        response = requests.post(api_url, json=payload)
         response.raise_for_status()
         result = response.json()
 
-        # The result returns a URL to the generated image
+        # Extract the image URL from the response
         image_url = result["data"][0]
         image_response = requests.get(image_url)
         return Image.open(BytesIO(image_response.content)).convert("RGBA")
