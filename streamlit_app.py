@@ -2,11 +2,7 @@ import streamlit as st
 from PIL import Image
 import requests
 from io import BytesIO
-import openai
 import os
-
-# Set your OpenAI API key
-openai.api_key = st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else os.getenv("OPENAI_API_KEY")
 
 # Garment templates
 TEMPLATES = {
@@ -19,21 +15,27 @@ TEMPLATES = {
 def load_template(garment):
     return Image.open(TEMPLATES[garment]).convert("RGBA")
 
-# Generate image from prompt using DALL-E
+# Generate image from prompt using Hugging Face (Stable Diffusion)
 @st.cache_data(show_spinner=True)
 def generate_image(prompt):
     try:
-        response = openai.Image.create(
-    prompt=prompt,
-    n=1,
-    size="256x256"
-)
+        API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2"
+        headers = {
+            "Authorization": f"Bearer {st.secrets['HF_API_TOKEN']}"
+        }
+        payload = {
+            "inputs": prompt,
+            "options": {"wait_for_model": True}
+        }
 
-        image_url = response['data'][0]['url']
-        image_response = requests.get(image_url)
-        return Image.open(BytesIO(image_response.content)).convert("RGBA")
+        response = requests.post(API_URL, headers=headers, json=payload)
+        response.raise_for_status()
+
+        image = Image.open(BytesIO(response.content)).convert("RGBA")
+        return image
+
     except Exception as e:
-        st.error(f"OpenAI Error: {e}")
+        st.error(f"Hugging Face Error: {e}")
         raise
 
 # Overlay design on garment template
