@@ -24,10 +24,11 @@ def load_template(garment):
 def generate_image(prompt):
     try:
         response = openai.Image.create(
-            prompt=prompt,
-            n=1,
-            size="512x512"
-        )
+    prompt=prompt,
+    n=1,
+    size="256x256"
+)
+
         image_url = response['data'][0]['url']
         image_response = requests.get(image_url)
         return Image.open(BytesIO(image_response.content)).convert("RGBA")
