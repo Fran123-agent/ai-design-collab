@@ -24,11 +24,9 @@ def generate_image(prompt):
         }
 
         data = {
-            "version": "f23f480345f60d0f1762d6976c1d728d6543d905cbdd27336e4d87d0267f6c60",  # Public SDXL model version ID
+            "version": "ed0f243e631eaf3c68b84c306e20516e819c287c438d93bb1c6f847bddbfe4ef",  # lucataco/sdxl
             "input": {
-                "prompt": prompt,
-                "guidance_scale": 7.5,
-                "num_inference_steps": 30
+                "prompt": prompt
             }
         }
 
