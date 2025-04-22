@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import requests
 from io import BytesIO
+import os
 
 # Garment templates
 TEMPLATES = {
@@ -14,27 +15,50 @@ TEMPLATES = {
 def load_template(garment):
     return Image.open(TEMPLATES[garment]).convert("RGBA")
 
-# Generate image from prompt using Hugging Face (Dreamlike Photoreal)
+# Generate image using Replicate (Stable Diffusion)
 @st.cache_data(show_spinner=True)
 def generate_image(prompt):
     try:
-        API_URL = "https://api-inference.huggingface.co/models/dreamlike-art/dreamlike-photoreal-2.0"
+        replicate_api_token = st.secrets["REPLICATE_API_TOKEN"]
+        url = "https://api.replicate.com/v1/predictions"
+
         headers = {
-            "Authorization": f"Bearer {st.secrets['HF_API_TOKEN']}"
-        }
-        payload = {
-            "inputs": prompt,
-            "options": {"wait_for_model": True}
+            "Authorization": f"Token {replicate_api_token}",
+            "Content-Type": "application/json"
         }
 
-        response = requests.post(API_URL, headers=headers, json=payload)
+        data = {
+            "version": "db21e45d3f7096f6e320d44c4761b83f1d7c907133da7f0871f0f0e06b53b80e",  # stable-diffusion 1.5
+            "input": {
+                "prompt": prompt,
+                "width": 512,
+                "height": 512
+            }
+        }
+
+        response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()
+        prediction = response.json()
 
-        image = Image.open(BytesIO(response.content)).convert("RGBA")
-        return image
+        # Wait until the image is ready
+        status = prediction["status"]
+        get_url = prediction["urls"]["get"]
+
+        while status != "succeeded" and status != "failed":
+            poll = requests.get(get_url, headers=headers)
+            poll.raise_for_status()
+            prediction = poll.json()
+            status = prediction["status"]
+
+        if status == "succeeded":
+            image_url = prediction["output"][0]
+            image_response = requests.get(image_url)
+            return Image.open(BytesIO(image_response.content)).convert("RGBA")
+        else:
+            raise Exception("Prediction failed")
 
     except Exception as e:
-        st.error(f"Hugging Face Error: {e}")
+        st.error(f"Replicate Error: {e}")
         raise
 
 # Overlay design on garment template
