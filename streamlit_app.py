@@ -16,43 +16,23 @@ def load_template(garment):
 @st.cache_data(show_spinner=True)
 def generate_image(prompt):
     try:
-        replicate_api_token = st.secrets["REPLICATE_API_TOKEN"]
-        url = "https://api.replicate.com/v1/predictions"
-        headers = {
-            "Authorization": f"Token {replicate_api_token}",
-            "Content-Type": "application/json"
-        }
+        # Public Hugging Face Space (ByteDance SDXL Lightning)
+        api_url = "https://hf.space/embed/ByteDance/SDXL-Lightning/+/api/predict"
 
-        data = {
-            "version": "ed0f243e631eaf3c68b84c306e20516e819c287c438d93bb1c6f847bddbfe4ef",  # lucataco/sdxl
-            "input": {
-                "prompt": prompt,
-                "prompt_strength": 0.8  # REQUIRED for this model
-            }
-        }
+        response = requests.post(api_url, json={
+            "data": [prompt]
+        })
 
-        response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()
-        prediction = response.json()
+        result = response.json()
 
-        get_url = prediction["urls"]["get"]
-        status = prediction["status"]
-
-        while status not in ["succeeded", "failed"]:
-            poll = requests.get(get_url, headers=headers)
-            poll.raise_for_status()
-            prediction = poll.json()
-            status = prediction["status"]
-
-        if status == "succeeded":
-            image_url = prediction["output"][0]
-            image_response = requests.get(image_url)
-            return Image.open(BytesIO(image_response.content)).convert("RGBA")
-        else:
-            raise Exception("Prediction failed")
+        # The result returns a URL to the generated image
+        image_url = result["data"][0]
+        image_response = requests.get(image_url)
+        return Image.open(BytesIO(image_response.content)).convert("RGBA")
 
     except Exception as e:
-        st.error(f"Replicate Error: {e}")
+        st.error(f"Image generation error: {e}")
         raise
 
 def create_mockup(template_img, design_img):
@@ -86,4 +66,4 @@ if generate_btn and prompt.strip():
         except Exception as e:
             st.error(f"Something went wrong: {e}")
 else:
-    st.info("Enter a prompt
+    st.info("Enter a prompt and hit Generate to get started.")
