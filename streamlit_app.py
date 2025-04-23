@@ -22,7 +22,7 @@ def generate_image(prompt):
             "Content-Type": "application/json"
         }
         payload = {
-            "key": "your_api_key",  # Replace with your actual API key
+            "key": "ltKAsEti5CsV8MFeemRMW4WufMsMqsvScIud2xWnWGPsvA8bQXE4sDSzOurI",
             "model_id": "ae-sdxl-v3",
             "prompt": prompt,
             "negative_prompt": "",
