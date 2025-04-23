@@ -65,7 +65,7 @@ def submit_to_firestore(name, prompt, image_url):
         }
     }
     response = requests.post(FIREBASE_URL, json=payload)
-    st.write("📬 Firebase response:", response.status_code, response.text)  # Debug line
+    st.write("📬 Firebase response:", response.status_code, response.text)
     response.raise_for_status()
 
 def get_gallery():
@@ -97,7 +97,8 @@ with tab1:
 
                 with st.form("Submit design"):
                     name = st.text_input("Your name or IG handle")
-                    if st.form_submit_button("Submit to Gallery"):
+                    submitted = st.form_submit_button("Submit to Gallery")
+                    if submitted:
                         submit_to_firestore(name, prompt.strip(), image_url)
                         st.success("✅ Design submitted to the gallery!")
             except Exception as e:
