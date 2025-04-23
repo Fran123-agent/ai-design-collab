@@ -64,7 +64,9 @@ def submit_to_firestore(name, prompt, image_url):
             "timestamp": {"timestampValue": datetime.datetime.utcnow().isoformat() + "Z"}
         }
     }
-    requests.post(FIREBASE_URL, json=payload)
+    response = requests.post(FIREBASE_URL, json=payload)
+    st.write("📬 Firebase response:", response.status_code, response.text)  # Debug line
+    response.raise_for_status()
 
 def get_gallery():
     try:
