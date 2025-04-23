@@ -23,7 +23,7 @@ def generate_image(prompt):
         }
         payload = {
             "key": "ltKAsEti5CsV8MFeemRMW4WufMsMqsvScIud2xWnWGPsvA8bQXE4sDSzOurI",
-            "model_id": "ae-sdxl-v3",
+            "model_id": "realistic-vision-v51",
             "prompt": prompt,
             "negative_prompt": "",
             "width": "512",
@@ -48,13 +48,16 @@ def generate_image(prompt):
         response.raise_for_status()
         result = response.json()
 
+        # 🪵 Debug output
+        st.write("API response:", result)
+
         if "output" in result and isinstance(result["output"], list):
             image_url = result["output"][0]
             image_response = requests.get(image_url)
             image_response.raise_for_status()
             return Image.open(BytesIO(image_response.content)).convert("RGBA")
         else:
-            raise Exception("Invalid response structure from the API.")
+            raise Exception(f"Invalid response structure from the API: {result}")
 
     except Exception as e:
         st.error(f"Image generation error: {e}")
