@@ -105,7 +105,16 @@ with tab2:
     st.title("🖼 Community Gallery")
     docs = get_gallery()
     for doc in docs:
-        fields = doc["fields"]
-        st.image(fields["image_url"]["stringValue"], width=384)
-        st.caption(f"**{fields['name']['stringValue']}** – _{fields['prompt']['stringValue']}_")
+        fields = doc.get("fields", {})
+        name = fields.get("name", {}).get("stringValue", "Anonymous")
+        prompt = fields.get("prompt", {}).get("stringValue", "")
+        image_url = fields.get("image_url", {}).get("stringValue", "")
+
+        if image_url:
+            st.image(image_url, width=384)
+        else:
+            st.warning("⚠️ This submission has no image attached.")
+            st.json(fields)
+
+        st.caption(f"**{name}** – _{prompt}_")
         st.markdown("---")
