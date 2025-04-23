@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import requests
 from io import BytesIO
+import json
 
 # Garment templates
 TEMPLATES = {
@@ -16,23 +17,44 @@ def load_template(garment):
 @st.cache_data(show_spinner=True)
 def generate_image(prompt):
     try:
-        # Public Hugging Face Space API endpoint
-        api_url = "https://ap123-sdxl-lightning.hf.space/api/predict"
-
-        # Prepare the payload
+        api_url = "https://stablediffusionapi.com/api/v4/dreambooth"
+        headers = {
+            "Content-Type": "application/json"
+        }
         payload = {
-            "data": [prompt, "4-Step"]  # Adjust '4-Step' as needed
+            "key": "your_api_key",  # Replace with your actual API key
+            "model_id": "ae-sdxl-v3",
+            "prompt": prompt,
+            "negative_prompt": "",
+            "width": "512",
+            "height": "512",
+            "samples": "1",
+            "num_inference_steps": "30",
+            "safety_checker": "no",
+            "enhance_prompt": "yes",
+            "seed": None,
+            "guidance_scale": 7.5,
+            "multi_lingual": "no",
+            "panorama": "no",
+            "self_attention": "no",
+            "upscale": "no",
+            "embeddings": None,
+            "lora": None,
+            "webhook": None,
+            "track_id": None
         }
 
-        # Send the POST request
-        response = requests.post(api_url, json=payload)
+        response = requests.post(api_url, headers=headers, data=json.dumps(payload))
         response.raise_for_status()
         result = response.json()
 
-        # Extract the image URL from the response
-        image_url = result["data"][0]
-        image_response = requests.get(image_url)
-        return Image.open(BytesIO(image_response.content)).convert("RGBA")
+        if "output" in result and isinstance(result["output"], list):
+            image_url = result["output"][0]
+            image_response = requests.get(image_url)
+            image_response.raise_for_status()
+            return Image.open(BytesIO(image_response.content)).convert("RGBA")
+        else:
+            raise Exception("Invalid response structure from the API.")
 
     except Exception as e:
         st.error(f"Image generation error: {e}")
