@@ -1,11 +1,58 @@
 import streamlit as st
+from PIL import Image
 import requests
+from io import BytesIO
 import json
 import datetime
 
 # FIREBASE CONFIG
 PROJECT_ID = "ai-design-collab"
 FIREBASE_URL = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents/designs"
+
+TEMPLATES = {
+    "Hoodie": "hoodie_template.png",
+    "T-Shirt": "tshirt_template.png",
+    "Crewneck": "crewneck_template.png"
+}
+
+def load_template(garment):
+    return Image.open(TEMPLATES[garment]).convert("RGBA")
+
+@st.cache_data(show_spinner=True)
+def generate_image(prompt):
+    try:
+        api_url = "https://stablediffusionapi.com/api/v4/dreambooth"
+        headers = { "Content-Type": "application/json" }
+        payload = {
+            "key": "ltKAsEti5CsV8MFeemRMW4WufMsMqsvScIud2xWnWGPsvA8bQXE4sDSzOurI",
+            "model_id": "realistic-vision-v51",
+            "prompt": prompt,
+            "width": "512",
+            "height": "512",
+            "samples": "1",
+            "num_inference_steps": "30",
+            "safety_checker": "no",
+            "enhance_prompt": "yes",
+            "guidance_scale": 7.5
+        }
+
+        response = requests.post(api_url, headers=headers, data=json.dumps(payload))
+        response.raise_for_status()
+        result = response.json()
+        image_url = result["output"][0]
+        image_response = requests.get(image_url)
+        image_response.raise_for_status()
+        return image_url, Image.open(BytesIO(image_response.content)).convert("RGBA")
+
+    except Exception as e:
+        st.error(f"Image generation error: {e}")
+        raise
+
+def create_mockup(template_img, design_img):
+    design_img = design_img.resize((368, 300))
+    mockup = template_img.copy()
+    mockup.paste(design_img, (200, 300), design_img)
+    return mockup
 
 def submit_to_firestore(name, prompt, image_url):
     payload = {
@@ -21,18 +68,56 @@ def submit_to_firestore(name, prompt, image_url):
     st.write("📬 Firebase response:", response.status_code, response.text)
     response.raise_for_status()
 
-# --- UI TEST: NO FORM ---
-st.title("🚧 Submit Without Form (Direct Button)")
-
-name = st.text_input("Your name or IG handle")
-if st.button("🔁 Submit Design to Firestore"):
-    st.write("🧠 Button clicked — sending to Firestore...")
+def get_gallery():
     try:
-        submit_to_firestore(
-            name,
-            "Hardcoded test prompt from no-form debug",
-            "https://via.placeholder.com/512x512.png?text=Test"
-        )
-        st.success("✅ Submitted successfully!")
+        response = requests.get(FIREBASE_URL)
+        response.raise_for_status()
+        data = response.json()
+        return sorted(data.get("documents", []), key=lambda d: d["fields"]["timestamp"]["timestampValue"], reverse=True)
     except Exception as e:
-        st.error(f"❌ Submission failed: {e}")
+        st.error(f"Could not load gallery: {e}")
+        return []
+
+# Streamlit App UI
+tab1, tab2 = st.tabs(["🎨 Create a Design", "🖼 Community Gallery"])
+
+with tab1:
+    st.title("🎨 AI Design Collab Assistant")
+    garment = st.selectbox("Choose your base garment:", list(TEMPLATES.keys()))
+    prompt = st.text_area("Describe your design idea:", placeholder="e.g. A graffiti-style phoenix with neon accents")
+    name = st.text_input("Your name or IG handle")
+
+    generate_btn = st.button("Generate & Submit")
+
+    if generate_btn and prompt.strip() and name.strip():
+        with st.spinner("Generating your design..."):
+            try:
+                image_url, ai_image = generate_image(prompt.strip())
+                template = load_template(garment)
+                mockup = create_mockup(template, ai_image)
+                st.image(mockup, caption="Here’s your mockup!", use_column_width=True)
+
+                st.write("🧠 Submitting to Firestore...")
+                submit_to_firestore(name.strip(), prompt.strip(), image_url)
+                st.success("✅ Design submitted to the gallery!")
+
+            except Exception as e:
+                st.error(f"Something went wrong: {e}")
+
+with tab2:
+    st.title("🖼 Community Gallery")
+    docs = get_gallery()
+    for doc in docs:
+        fields = doc.get("fields", {})
+        name = fields.get("name", {}).get("stringValue", "Anonymous")
+        prompt = fields.get("prompt", {}).get("stringValue", "")
+        image_url = fields.get("image_url", {}).get("stringValue", "")
+
+        if image_url:
+            st.image(image_url, width=384)
+        else:
+            st.warning("⚠️ This submission has no image attached.")
+            st.json(fields)
+
+        st.caption(f"**{name}** – _{prompt}_")
+        st.markdown("---")
