@@ -49,7 +49,7 @@ def generate_image(prompt):
         result = response.json()
 
         # 🪵 Debug output
-        st.write("API response:", result)
+        
 
         if "output" in result and isinstance(result["output"], list):
             image_url = result["output"][0]
