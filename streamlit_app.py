@@ -37,15 +37,15 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Branding
-st.image("https://i.imgur.com/Mj0JSG5.png", width=80)
+# Branding: side-by-side layout with logo
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;400&display=swap" rel="stylesheet">
-<div style='text-align: center; font-family: "Source Serif 4", serif; font-size: 36px; font-weight: 400; text-transform: uppercase; letter-spacing: 1px;'>
-    North East Streetwear
-</div>
-<div style='text-align: center; font-family: "Source Serif 4", serif; font-size: 20px; font-weight: 300; margin-top: 0.25em;'>
-    North of the Noise
+<div style="display: flex; align-items: center; justify-content: center; gap: 1.5em; margin-top: 1em;">
+    <img src="https://i.imgur.com/Mj0JSG5.png" width="60" style="margin-bottom: 0;">
+    <div style='font-family: "Source Serif 4", serif; text-align: left;'>
+        <div style='font-size: 36px; font-weight: 400; text-transform: uppercase; letter-spacing: 1px;'>North East Streetwear</div>
+        <div style='font-size: 20px; font-weight: 300;'>North of the Noise</div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 st.markdown("---")
