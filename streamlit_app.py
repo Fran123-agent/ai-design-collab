@@ -16,9 +16,6 @@ TEMPLATES = {
     "Crewneck": "crewneck_template.png"
 }
 
-# Load logo
-logo = Image.open("Black Arrow.png")
-
 # Session vote tracking
 if "voted_ids" not in st.session_state:
     st.session_state.voted_ids = set()
@@ -40,7 +37,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Header with logo and tagline
-st.image(logo, width=120)
+st.image("https://i.imgur.com/abc123.png", width=120)  # Replace with your actual hosted logo URL
 st.markdown("<h1 style='text-align: center;'>North East Streetwear</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center;'>North of the Noise</h3>", unsafe_allow_html=True)
 st.markdown("---")
