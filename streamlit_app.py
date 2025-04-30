@@ -21,7 +21,7 @@ if "voted_ids" not in st.session_state:
 
 st.set_page_config(page_title="AI Design Collab — North East", layout="centered")
 
-# Custom styling for layout and tab color
+# Custom styling: layout + tab colors
 st.markdown("""
     <style>
     .stApp {
@@ -53,7 +53,8 @@ st.markdown("""
         color: white !important;
     }
     [data-baseweb="tab"]:hover {
-        background-color: #e0e0e0;
+        background-color: #cc0000;
+        color: white;
     }
     </style>
 """, unsafe_allow_html=True)
