@@ -9,6 +9,7 @@ import datetime
 PROJECT_ID = "ai-design-collab"
 FIREBASE_URL = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents/designs"
 
+# Template images for garments
 TEMPLATES = {
     "Hoodie": "hoodie_template.png",
     "T-Shirt": "tshirt_template.png",
@@ -20,33 +21,27 @@ def load_template(garment):
 
 @st.cache_data(show_spinner=True)
 def generate_image(prompt):
-    try:
-        api_url = "https://stablediffusionapi.com/api/v4/dreambooth"
-        headers = { "Content-Type": "application/json" }
-        payload = {
-            "key": "ltKAsEti5CsV8MFeemRMW4WufMsMqsvScIud2xWnWGPsvA8bQXE4sDSzOurI",
-            "model_id": "realistic-vision-v51",
-            "prompt": prompt,
-            "width": "512",
-            "height": "512",
-            "samples": "1",
-            "num_inference_steps": "30",
-            "safety_checker": "no",
-            "enhance_prompt": "yes",
-            "guidance_scale": 7.5
-        }
-
-        response = requests.post(api_url, headers=headers, data=json.dumps(payload))
-        response.raise_for_status()
-        result = response.json()
-        image_url = result["output"][0]
-        image_response = requests.get(image_url)
-        image_response.raise_for_status()
-        return image_url, Image.open(BytesIO(image_response.content)).convert("RGBA")
-
-    except Exception as e:
-        st.error(f"Image generation error: {e}")
-        raise
+    api_url = "https://stablediffusionapi.com/api/v4/dreambooth"
+    headers = { "Content-Type": "application/json" }
+    payload = {
+        "key": "ltKAsEti5CsV8MFeemRMW4WufMsMqsvScIud2xWnWGPsvA8bQXE4sDSzOurI",
+        "model_id": "realistic-vision-v51",
+        "prompt": prompt,
+        "width": "512",
+        "height": "512",
+        "samples": "1",
+        "num_inference_steps": "30",
+        "safety_checker": "no",
+        "enhance_prompt": "yes",
+        "guidance_scale": 7.5
+    }
+    response = requests.post(api_url, headers=headers, data=json.dumps(payload))
+    response.raise_for_status()
+    result = response.json()
+    image_url = result["output"][0]
+    image_response = requests.get(image_url)
+    image_response.raise_for_status()
+    return image_url, Image.open(BytesIO(image_response.content)).convert("RGBA")
 
 def create_mockup(template_img, design_img):
     design_img = design_img.resize((368, 300))
@@ -65,8 +60,16 @@ def submit_to_firestore(name, prompt, image_url):
         }
     }
     response = requests.post(FIREBASE_URL, json=payload)
-    st.write("📬 Firebase response:", response.status_code, response.text)
     response.raise_for_status()
+
+def update_vote(document_name, current_votes):
+    patch_url = f"{FIREBASE_URL}/{document_name}?updateMask.fieldPaths=votes"
+    payload = {
+        "fields": {
+            "votes": {"integerValue": str(current_votes + 1)}
+        }
+    }
+    requests.patch(patch_url, json=payload)
 
 def get_gallery():
     try:
@@ -78,7 +81,7 @@ def get_gallery():
         st.error(f"Could not load gallery: {e}")
         return []
 
-# Streamlit App UI
+# Streamlit UI
 tab1, tab2 = st.tabs(["🎨 Create a Design", "🖼 Community Gallery"])
 
 with tab1:
@@ -86,7 +89,6 @@ with tab1:
     garment = st.selectbox("Choose your base garment:", list(TEMPLATES.keys()))
     prompt = st.text_area("Describe your design idea:", placeholder="e.g. A graffiti-style phoenix with neon accents")
     name = st.text_input("Your name or IG handle")
-
     generate_btn = st.button("Generate & Submit")
 
     if generate_btn and prompt.strip() and name.strip():
@@ -97,10 +99,8 @@ with tab1:
                 mockup = create_mockup(template, ai_image)
                 st.image(mockup, caption="Here’s your mockup!", use_column_width=True)
 
-                st.write("🧠 Submitting to Firestore...")
                 submit_to_firestore(name.strip(), prompt.strip(), image_url)
                 st.success("✅ Design submitted to the gallery!")
-
             except Exception as e:
                 st.error(f"Something went wrong: {e}")
 
@@ -108,10 +108,12 @@ with tab2:
     st.title("🖼 Community Gallery")
     docs = get_gallery()
     for doc in docs:
+        doc_name = doc["name"].split("/")[-1]
         fields = doc.get("fields", {})
         name = fields.get("name", {}).get("stringValue", "Anonymous")
         prompt = fields.get("prompt", {}).get("stringValue", "")
         image_url = fields.get("image_url", {}).get("stringValue", "")
+        votes = int(fields.get("votes", {}).get("integerValue", "0"))
 
         if image_url:
             st.image(image_url, width=384)
@@ -120,4 +122,8 @@ with tab2:
             st.json(fields)
 
         st.caption(f"**{name}** – _{prompt}_")
+        vote_btn = st.button(f"👍 Vote ({votes})", key=f"vote-{doc_name}")
+        if vote_btn:
+            update_vote(doc_name, votes)
+            st.experimental_rerun()
         st.markdown("---")
