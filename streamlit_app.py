@@ -21,7 +21,7 @@ if "voted_ids" not in st.session_state:
 
 st.set_page_config(page_title="AI Design Collab — North East", layout="centered")
 
-# Custom light styling and hide Streamlit toolbar
+# Custom styling for layout and tab color
 st.markdown("""
     <style>
     .stApp {
@@ -34,10 +34,31 @@ st.markdown("""
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+
+    /* Tab styling */
+    [data-baseweb="tab-list"] {
+        background-color: #ffffff;
+        border-bottom: 1px solid #ccc;
+    }
+    [data-baseweb="tab"] {
+        color: black;
+        background-color: #f2f2f2;
+        border-radius: 6px 6px 0 0;
+        margin-right: 8px;
+        padding: 0.5em 1em;
+        font-weight: 500;
+    }
+    [data-baseweb="tab"][aria-selected="true"] {
+        background-color: #000000 !important;
+        color: white !important;
+    }
+    [data-baseweb="tab"]:hover {
+        background-color: #e0e0e0;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# Branding: logo left, stacked text to right
+# Branding: logo + stacked text
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;400&display=swap" rel="stylesheet">
 <div style="display: flex; align-items: center; justify-content: center; gap: 1.5em; margin-top: 1em;">
