@@ -41,7 +41,9 @@ st.markdown("""
 st.image("https://i.imgur.com/Mj0JSG5.png", width=80)
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&display=swap" rel="stylesheet">
-<h1 style='text-align: center; font-family: "Source Serif 4", serif;'>North East Streetwear</h1>
+<div style='text-align: center; font-family: "Source Serif 4", serif; font-size: 36px; font-weight: 400;'>
+    North East Streetwear
+</div>
 """, unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center;'>North of the Noise</h3>", unsafe_allow_html=True)
 st.markdown("---")
