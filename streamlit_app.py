@@ -16,21 +16,19 @@ TEMPLATES = {
     "Crewneck": "crewneck_template.png"
 }
 
-# Session vote tracking
 if "voted_ids" not in st.session_state:
     st.session_state.voted_ids = set()
 
-# Set page config
 st.set_page_config(page_title="AI Design Collab — North East", layout="centered")
 
-# Custom light theme styling
+# Custom light styling and hide Streamlit toolbar
 st.markdown("""
     <style>
     .stApp {
         background-color: #ffffff;
         color: black;
     }
-    h1, h3, .stMarkdown, label {
+    h3, .stMarkdown, label {
         color: black !important;
     }
     #MainMenu {visibility: hidden;}
@@ -39,9 +37,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# NE Branding Header
+# Branding
 st.image("https://i.imgur.com/Mj0JSG5.png", width=80)
-st.markdown("<h1 style='text-align: center;'>North East Streetwear</h1>", unsafe_allow_html=True)
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&display=swap" rel="stylesheet">
+<h1 style='text-align: center; font-family: "Source Serif 4", serif;'>North East Streetwear</h1>
+""", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center;'>North of the Noise</h3>", unsafe_allow_html=True)
 st.markdown("---")
 
