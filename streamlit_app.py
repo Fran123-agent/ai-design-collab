@@ -23,7 +23,7 @@ if "voted_ids" not in st.session_state:
 # Set page config
 st.set_page_config(page_title="AI Design Collab — North East", layout="centered")
 
-# Custom light theme styling
+# Light theme styling
 st.markdown("""
     <style>
     .stApp {
@@ -36,8 +36,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Header with logo and tagline
-st.image("https://i.imgur.com/abc123.png", width=120)  # Replace with your actual hosted logo URL
+# NE Branding Header
+st.image("https://i.imgur.com/Mj0JSG5.png", width=120)
 st.markdown("<h1 style='text-align: center;'>North East Streetwear</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center;'>North of the Noise</h3>", unsafe_allow_html=True)
 st.markdown("---")
