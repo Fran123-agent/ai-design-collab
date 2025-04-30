@@ -101,7 +101,7 @@ with tab1:
                 image_url, ai_image = generate_image(prompt.strip())
                 template = load_template(garment)
                 mockup = create_mockup(template, ai_image)
-                st.image(mockup, caption="Here’s your mockup!", use_column_width=True)
+                st.image(mockup, caption="Here’s your mockup!", use_container_width=True)
 
                 submit_to_firestore(name.strip(), prompt.strip(), image_url)
                 st.success("✅ Design submitted to the gallery!")
