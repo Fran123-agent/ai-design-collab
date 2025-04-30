@@ -4,12 +4,13 @@ import requests
 from io import BytesIO
 import json
 import datetime
+import time
 
 # FIREBASE CONFIG
 PROJECT_ID = "ai-design-collab"
 FIREBASE_URL = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents/designs"
 
-# Template images for garments
+# Template images
 TEMPLATES = {
     "Hoodie": "hoodie_template.png",
     "T-Shirt": "tshirt_template.png",
@@ -125,5 +126,6 @@ with tab2:
         vote_btn = st.button(f"👍 Vote ({votes})", key=f"vote-{doc_name}")
         if vote_btn:
             update_vote(doc_name, votes)
+            time.sleep(0.5)  # prevent rapid resubmit + crash
             st.experimental_rerun()
         st.markdown("---")
