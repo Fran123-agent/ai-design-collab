@@ -40,12 +40,14 @@ st.markdown("""
 # Branding
 st.image("https://i.imgur.com/Mj0JSG5.png", width=80)
 st.markdown("""
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&display=swap" rel="stylesheet">
-<div style='text-align: center; font-family: "Source Serif 4", serif; font-size: 36px; font-weight: 400;'>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;400&display=swap" rel="stylesheet">
+<div style='text-align: center; font-family: "Source Serif 4", serif; font-size: 36px; font-weight: 400; text-transform: uppercase; letter-spacing: 1px;'>
     North East Streetwear
 </div>
+<div style='text-align: center; font-family: "Source Serif 4", serif; font-size: 20px; font-weight: 300; margin-top: 0.25em;'>
+    North of the Noise
+</div>
 """, unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center;'>North of the Noise</h3>", unsafe_allow_html=True)
 st.markdown("---")
 
 def load_template(garment):
