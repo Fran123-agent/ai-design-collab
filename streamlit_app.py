@@ -10,7 +10,6 @@ import time
 PROJECT_ID = "ai-design-collab"
 FIREBASE_URL = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents/designs"
 
-# Template images
 TEMPLATES = {
     "Hoodie": "hoodie_template.png",
     "T-Shirt": "tshirt_template.png",
@@ -86,7 +85,7 @@ def get_gallery():
 if "voted_ids" not in st.session_state:
     st.session_state.voted_ids = set()
 
-# Streamlit UI
+# UI
 tab1, tab2 = st.tabs(["🎨 Create a Design", "🖼 Community Gallery"])
 
 with tab1:
@@ -127,17 +126,19 @@ with tab2:
             st.json(fields)
 
         st.caption(f"**{name}** – _{prompt}_")
-
-        has_voted = doc_name in st.session_state.voted_ids
         vote_key = f"vote-{doc_name}"
+        has_voted = doc_name in st.session_state.voted_ids
 
         if has_voted:
             st.button(f"✅ Voted ({votes})", key=vote_key, disabled=True)
         else:
             if st.button(f"👍 Vote ({votes})", key=vote_key):
-                update_vote(doc_name, votes)
-                st.session_state.voted_ids.add(doc_name)
-                time.sleep(0.5)
-                st.experimental_rerun()
+                try:
+                    update_vote(doc_name, votes)
+                    st.session_state.voted_ids.add(doc_name)
+                    time.sleep(0.5)
+                    st.experimental_rerun()
+                except Exception as e:
+                    st.warning(f"Vote registered, but app rerun was blocked: {e}")
 
         st.markdown("---")
