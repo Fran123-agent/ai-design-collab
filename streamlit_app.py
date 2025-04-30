@@ -16,6 +16,35 @@ TEMPLATES = {
     "Crewneck": "crewneck_template.png"
 }
 
+# Load logo
+logo = Image.open("Black Arrow.png")
+
+# Session vote tracking
+if "voted_ids" not in st.session_state:
+    st.session_state.voted_ids = set()
+
+# Set page config
+st.set_page_config(page_title="AI Design Collab — North East", layout="centered")
+
+# Custom light theme styling
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #ffffff;
+        color: black;
+    }
+    h1, h3, .stMarkdown, label {
+        color: black !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Header with logo and tagline
+st.image(logo, width=120)
+st.markdown("<h1 style='text-align: center;'>North East Streetwear</h1>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center;'>North of the Noise</h3>", unsafe_allow_html=True)
+st.markdown("---")
+
 def load_template(garment):
     return Image.open(TEMPLATES[garment]).convert("RGBA")
 
@@ -81,15 +110,9 @@ def get_gallery():
         st.error(f"Could not load gallery: {e}")
         return []
 
-# --- Session vote tracking ---
-if "voted_ids" not in st.session_state:
-    st.session_state.voted_ids = set()
-
-# UI Tabs
 tab1, tab2 = st.tabs(["🎨 Create a Design", "🖼 Community Gallery"])
 
 with tab1:
-    st.title("🎨 AI Design Collab Assistant")
     garment = st.selectbox("Choose your base garment:", list(TEMPLATES.keys()))
     prompt = st.text_area("Describe your design idea:", placeholder="e.g. A graffiti-style phoenix with neon accents")
     name = st.text_input("Your name or IG handle")
@@ -102,14 +125,12 @@ with tab1:
                 template = load_template(garment)
                 mockup = create_mockup(template, ai_image)
                 st.image(mockup, caption="Here’s your mockup!", use_container_width=True)
-
                 submit_to_firestore(name.strip(), prompt.strip(), image_url)
                 st.success("✅ Design submitted to the gallery!")
             except Exception as e:
                 st.error(f"Something went wrong: {e}")
 
 with tab2:
-    st.title("🖼 Community Gallery")
     docs = get_gallery()
     for doc in docs:
         doc_name = doc["name"].split("/")[-1]
