@@ -82,6 +82,10 @@ def get_gallery():
         st.error(f"Could not load gallery: {e}")
         return []
 
+# --- Session vote tracking ---
+if "voted_ids" not in st.session_state:
+    st.session_state.voted_ids = set()
+
 # Streamlit UI
 tab1, tab2 = st.tabs(["🎨 Create a Design", "🖼 Community Gallery"])
 
@@ -123,9 +127,17 @@ with tab2:
             st.json(fields)
 
         st.caption(f"**{name}** – _{prompt}_")
-        vote_btn = st.button(f"👍 Vote ({votes})", key=f"vote-{doc_name}")
-        if vote_btn:
-            update_vote(doc_name, votes)
-            time.sleep(0.5)  # prevent rapid resubmit + crash
-            st.experimental_rerun()
+
+        has_voted = doc_name in st.session_state.voted_ids
+        vote_key = f"vote-{doc_name}"
+
+        if has_voted:
+            st.button(f"✅ Voted ({votes})", key=vote_key, disabled=True)
+        else:
+            if st.button(f"👍 Vote ({votes})", key=vote_key):
+                update_vote(doc_name, votes)
+                st.session_state.voted_ids.add(doc_name)
+                time.sleep(0.5)
+                st.experimental_rerun()
+
         st.markdown("---")
