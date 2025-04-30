@@ -23,7 +23,7 @@ if "voted_ids" not in st.session_state:
 # Set page config
 st.set_page_config(page_title="AI Design Collab — North East", layout="centered")
 
-# Light theme styling
+# Custom light theme styling
 st.markdown("""
     <style>
     .stApp {
@@ -33,6 +33,9 @@ st.markdown("""
     h1, h3, .stMarkdown, label {
         color: black !important;
     }
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
