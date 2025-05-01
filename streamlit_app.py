@@ -24,18 +24,9 @@ st.set_page_config(page_title="AI Design Collab — North East", layout="centere
 # Custom styling: layout + tab colors
 st.markdown("""
     <style>
-    .stApp {
-        background-color: #ffffff;
-        color: black;
-    }
-    h3, .stMarkdown, label {
-        color: black !important;
-    }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-
-    /* Tab styling */
+    .stApp { background-color: #ffffff; color: black; }
+    h3, .stMarkdown, label { color: black !important; }
+    #MainMenu, footer, header { visibility: hidden; }
     [data-baseweb="tab-list"] {
         background-color: #ffffff;
         border-bottom: 1px solid #ccc;
@@ -59,7 +50,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Branding: logo + stacked text
+# Branding header
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;400&display=swap" rel="stylesheet">
 <div style="display: flex; align-items: center; justify-content: center; gap: 1.5em; margin-top: 1em;">
@@ -120,11 +111,7 @@ def submit_to_firestore(name, prompt, image_url):
 
 def update_vote(document_name, current_votes):
     patch_url = f"{FIREBASE_URL}/{document_name}?updateMask.fieldPaths=votes"
-    payload = {
-        "fields": {
-            "votes": {"integerValue": str(current_votes + 1)}
-        }
-    }
+    payload = { "fields": { "votes": {"integerValue": str(current_votes + 1)} } }
     requests.patch(patch_url, json=payload)
 
 def get_gallery():
@@ -140,18 +127,25 @@ def get_gallery():
 tab1, tab2 = st.tabs(["🎨 Create a Design", "🖼 Community Gallery"])
 
 with tab1:
-    garment = st.selectbox("Choose your base garment:", list(TEMPLATES.keys()))
-    prompt = st.text_area("Describe your design idea:", placeholder="e.g. A graffiti-style phoenix with neon accents")
+    st.subheader("Upload or Generate Your Design")
+    upload_image = st.file_uploader("Upload a PNG or JPG image", type=["png", "jpg", "jpeg"])
+    prompt = st.text_area("Describe your design (optional)")
     name = st.text_input("Your name or IG handle")
-    generate_btn = st.button("Generate & Submit")
+    garment = st.selectbox("Choose your base garment (if generated):", list(TEMPLATES.keys()))
+    submit_btn = st.button("Submit to Gallery")
 
-    if generate_btn and prompt.strip() and name.strip():
-        with st.spinner("Generating your design..."):
+    if submit_btn and name.strip() and (upload_image or prompt.strip()):
+        with st.spinner("Submitting your design..."):
             try:
-                image_url, ai_image = generate_image(prompt.strip())
-                template = load_template(garment)
-                mockup = create_mockup(template, ai_image)
-                st.image(mockup, caption="Here’s your mockup!", use_container_width=True)
+                if upload_image:
+                    img = Image.open(upload_image).convert("RGBA")
+                    image_url = "https://via.placeholder.com/512x512.png?text=Uploaded+Image"
+                else:
+                    image_url, img = generate_image(prompt.strip())
+                    template = load_template(garment)
+                    img = create_mockup(template, img)
+
+                st.image(img, caption="Design preview", use_container_width=True)
                 submit_to_firestore(name.strip(), prompt.strip(), image_url)
                 st.success("✅ Design submitted to the gallery!")
             except Exception as e:
